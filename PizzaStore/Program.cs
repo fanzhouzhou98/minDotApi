@@ -4,9 +4,24 @@ using PizzaStore.Models;
 
 
 
-
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<PizzaDb>(options => options.UseInMemoryDatabase("items"));
+var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "Data Source=Pizzas.db";
+builder.Services.AddSqlite<PizzaDb>(connectionString);
+
+// 1) define a unique string
+string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+// 2) define allowed domains, in this case "http://example.com" and "*" = all
+//    domains, for testing purposes only.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+      builder =>
+      {
+          builder.WithOrigins(
+            "http://example.com", "*");
+      });
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
